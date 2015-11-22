@@ -274,9 +274,9 @@ class plot_sheet(render2D):
 
         #self.patches.set_face_value(self.resobj.var)        
         #self.patches.patches.colorbar.set_clim(-1,1)  
-        res=self
+        #res=self
 
-        self.slider_bar=slider.slider_bar(res)
+        #self.slider_bar=slider.slider_bar(res)
         
     def setref(self,val):
         self.resobj.setref(val)

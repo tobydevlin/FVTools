@@ -29,8 +29,20 @@ class dataset:
     def parse_expression(self):
         # determine syntax and variables of expression
         # might be able to be defined in this superclass
+        import re
+        expr = self.var
+        subvars = [a.upper() for a in re.split('[\W0-9]+',expr)]
+		vars = nci.variables
+		# find which variables have time dimension
+		for aa in range(len(subvars)):
+			if subvars[aa] not in vars:
+				print 'Error'
+			else:
+				expr=re.sub(subvars[aa],'nci.variables["'+subvars[aa]+'"][#][:]',expr)
         pass
-    
+        
+    	#eval(('nci.variables["'+var1+'"][1][:]+nci.variables["'+var2+'"][1][:]'))
+    	
     def update_timestep(self):
         # move to new timestep and do all processing required to extract data
         # 
@@ -47,6 +59,12 @@ class dataset:
         
     def setvar(self,val):
         self.variable = val
+        
+            
+    def get_variable(self):
+        # Extend this function to handle expressions if required - Only reason it is still a thing, it might call multiple variables
+        var = self.fils.get_timestep(self.variable,self.timestep)
+        return var
         
     
 #__________________________________________________________
@@ -90,6 +108,14 @@ class sheet(dataset):
             self.ref=6
         else:
             print 'ERROR: Invlaid Ref Value'
+            
+
+    def get_vect_variable(self,vector_xvar,vector_yvar):
+        # Extend this function to handle expressions if required
+        x_var = self.fils.get_timestep(vector_xvar,self.timestep)
+        y_var = self.fils.get_timestep(vector_yvar,self.timestep)
+        return (x_var, y_var)
+    
     
     def setrange(self,lower,upper):
         self.lower = lower
@@ -112,11 +138,8 @@ class fvsheet(sheet):
         if self.is3D:
             self.setrange(lower,upper)
             self.setref(ref)
-        
 
-                
-                
-    
+
     def process_data(self):
         # depth average using fv style
         var = self.get_variable()
@@ -131,17 +154,7 @@ class fvsheet(sheet):
         stat=stat==0 
         self.var[stat] = np.nan
         self.stat=stat
-        
-    def get_variable(self):
-        # Extend this function to handle expressions if required
-        var = self.fils.get_timestep(self.variable,self.timestep)
-        return var
-    
-    def get_vect_variable(self,vector_xvar,vector_yvar):
-        # Extend this function to handle expressions if required
-        x_var = self.fils.get_timestep(vector_xvar,self.timestep)
-        y_var = self.fils.get_timestep(vector_yvar,self.timestep)
-        return (x_var, y_var)
+
         
     def is3D(self):
         # Checks once if output will be 3D or not, then stores this
@@ -149,13 +162,12 @@ class fvsheet(sheet):
         nc3 = self.fils.get_dim_len('NumCells3D')
         nc2 = self.fils.get_dim_len('NumCells2D')
         if len(var)==nc2:
-            self.is3D=False
+            is3D=False
         elif len(var)==nc3:
-            self.is3D=True
+            is3D=True
         else:
-            pass # throw error here    
-            
-        return self.is3D
+            pass # throw error here
+        return is3D
 
     def get_vertices(self):
         x=self.fils.get_var('node_X')
@@ -167,19 +179,8 @@ class fvsheet(sheet):
         logi=face[:,3]==0
         face[logi,3]=face[logi,0]
         return face
+
     
-    def parse_expression(variable):
-        pass
-    
-
-
-
-
-
-
-
-
-
 
 
 
@@ -189,6 +190,25 @@ class curtain(dataset):
     # knows to extract its data along pline for either normal plotting or against chainage
     pline = ''
     spherical='?'
+    
+    # This is here until i can find a clever way to get this and the sheet version into 'dataset'
+    def factory(dfile,variable,pline):
+        filobj=file_types.file_type.open(dfile)
+        if filobj.Type==1:
+            if isfvnc(filobj):
+                return fvcurtain(filobj,variable,pline)
+            else:
+                return 0  # check if gridded, make grid curtain nc
+                
+        elif filobj.Type==2:
+            return 0      # dat file.. can these be curtains?
+            
+        elif filobj.Type==3:
+            return 0        # xmdf.. can these be curtains?
+            
+        else:
+            return 0        # throw error in future?
+    factory = staticmethod(factory)
 
 
 #__________________________________________________________    
