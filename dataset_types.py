@@ -137,6 +137,10 @@ class fvsheet(sheet):
         var = self.fils.get_timestep(self.variable,self.timestep)
         return var
     
+    def get_whole_variable(self,variable):
+        var=self.fils.get_var(variable)
+        return var
+        
     def get_vect_variable(self,vector_xvar,vector_yvar):
         # Extend this function to handle expressions if required
         x_var = self.fils.get_timestep(vector_xvar,self.timestep)
