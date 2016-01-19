@@ -2,7 +2,7 @@
 """
 Created on Thu Aug 20 15:35:00 2015
 
-@author: toby.devlin
+@author: toby.devlin && steven.ettema
 """
 import dataset_types
 import numpy as np
@@ -10,8 +10,7 @@ import matplotlib
 from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
 import matplotlib.pyplot as plt
-import matplotlib.path as mplPath
-import fvobj as ctrlobj
+import inpoly_py as ip
 
 
 class mypatches:
@@ -27,7 +26,6 @@ class mypatches:
         patches.set_array(np.zeros(len(faces)))
         ax.add_collection(patches)
         self.patches=patches
-#        plt.colorbar(self.patches)
 
     def delete(self):
         pass
@@ -46,29 +44,20 @@ class mypatches:
 
 class myarrows:
     def __init__(self,x_var,y_var,px,py,xy,face,ax):
-        #Setup an empty matrix for the data
         plt.sca(ax)        
-        datv= np.empty((len(px),1))
-        datv[:] = np.NAN
-        for aa in range(len(face)):
-            #builds it polygon by polygon
-                poly = np.vstack((xy[face[aa,0]],xy[face[aa,1]],xy[face[aa,2]],xy[face[aa,3]]))
-                bbPath = mplPath.Path(poly)
-                #checks if the data is contained within the polygon built in that timestep
-                tt=bbPath.contains_points(np.transpose(np.vstack((px,py))))
-                datv[tt]=aa
-
-        datx=np.empty((len(datv),1))
+        datv= np.empty((len(px)))
+        dat_x=xy[face,0]
+        dat_y=xy[face,1]
+        datv=ip.inpoly_py(px,py,dat_x,dat_y)
+        datx=np.empty((len(datv)))
         datx[:] = np.NAN
-        daty=np.empty((len(datv),1))
+        daty=np.empty((len(datv)))
         daty[:] = np.NAN
         ind=~np.isnan(datv)
         tmp=datv[ind]
         datx[ind]=x_var[tmp.astype(int)]
         daty[ind]=y_var[tmp.astype(int)]
-        self.vectors = plt.quiver(px,py,datx,daty,units='dots',scale=0.05,minlength=0.01,pivot = 'tail',width=1.5,axes=ax)        
-        
-
+        self.vectors = plt.quiver(px,py,datx,daty,units='dots',scale=0.05,minlength=0.01,pivot = 'tail',width=1.5,axes=ax)
 
 class render2D:
     
@@ -138,7 +127,7 @@ class render2D:
         #cell information
         vertices = self.resobj.get_vertices()
         self.face = self.resobj.get_faces()-1
-        xy = np.vstack((vertices[0,:],vertices[1,:]))
+        xy = vertices
         self.xy = np.transpose(xy);
         x_var, y_var=self.resobj.get_vect_variable(self.vector_xvar,self.vector_yvar)
         self.vectors=myarrows(x_var,y_var,px,py,self.xy,self.face,self.ax)
@@ -152,9 +141,9 @@ class render2D:
         pass
 
     def update_arrows(self):
+        #gets the figure size in pixles
         yp1 = self.ax.get_ylim()
         xp1 = self.ax.get_xlim()
-        #gets the figure size in pixles
         bbox=self.ax.get_window_extent().transformed(self.fvobj.fig.dpi_scale_trans.inverted()) 
         width, height = bbox.width, bbox.height
         width *=self.fvobj.fig.dpi
@@ -165,28 +154,18 @@ class render2D:
         #detemine there location
         px = np.linspace(xp1[0],xp1[1],nx)
         py = np.linspace(yp1[0],yp1[1],ny)
-        #points to interpolate too
         pts=np.meshgrid(px,py)
         px=np.reshape(pts[0],np.size(pts[0]),1)
         py=np.reshape(pts[1],np.size(pts[1]),1)
-        #Setup an empty matrix for the data
-        datv= np.empty((len(px),1))
-        datv[:] = np.NAN
-        
-        for aa in range(len(self.face)):
-            #builds it polygon by polygon
-            poly = np.vstack((self.xy[self.face[aa,0]],self.xy[self.face[aa,1]],self.xy[self.face[aa,2]],self.xy[self.face[aa,3]]))
-            bbPath = mplPath.Path(poly)
-            #checks if the data is contained within the polygon built in that timestep
-            t=bbPath.contains_points(np.transpose(np.vstack((px,py))))
-            datv[t]=aa
-    
-        datx=np.empty((len(datv),1))
-        datx[:] = np.NAN
-        daty=np.empty((len(datv),1))
-        daty[:] = np.NAN
-        ind=~np.isnan(datv)
-        tmp=datv[ind]
+        dat_x=self.xy[self.face,0]
+        dat_y=self.xy[self.face,1]
+        self.datv=ip.inpoly_py(px,py,dat_x,dat_y)
+        datx=np.empty(len(self.datv))
+        datx[:] = 0
+        daty=np.empty(len(self.datv))
+        daty[:] = 0
+        ind=self.datv!=-1
+        tmp=self.datv[ind]
         x_var, y_var=self.resobj.get_vect_variable(self.vector_xvar,self.vector_yvar)
         datx[ind]=x_var[tmp.astype(int)]
         daty[ind]=y_var[tmp.astype(int)]

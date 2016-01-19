@@ -16,7 +16,9 @@ returns a handel to the figure and axis
 """
 import matplotlib.pyplot as plt
 from  matplotlib.widgets import Slider, Button
+from matplotlib import dates
 import  numpy as np
+import convtime
 
 class fvobj:
 
@@ -39,7 +41,7 @@ class fvobj:
                 self.ax.append(tmp)
             ## Creating this here along side all other axes
             axcolor='grey'
-            self.ax_slider=plt.axes([0.35, 0.01, 0.5, 0.03], axisbg=axcolor)
+            self.ax_slider=plt.axes([0.35, 0.01, 0.3, 0.03], axisbg=axcolor)
             self.ax_fwd=plt.axes([0.1, 0.01, 0.1, 0.04], axisbg=axcolor)
             self.ax_bwd=plt.axes([0.00, 0.01, 0.1, 0.04], axisbg=axcolor)
             self.slider_obj=self.make_slider_obj()
@@ -48,15 +50,17 @@ class fvobj:
     def make_slider_obj(self,t_start=0,t_end=100,t_current=0,t_step=1): #takes resobj from make plots to initialise slider
 
         axcolor='grey'
-        self.slider = Slider(self.ax_slider, 'Timestep', t_start, t_end, valinit=t_current,valfmt='%d')
+        self.slider = Slider(self.ax_slider, 'Timestep', t_start, t_end, valinit=t_current, slidermax=None, slidermin=None)
         self.fwd = Button(self.ax_fwd,'>>',color=axcolor,hovercolor='0.975')
         self.bwd = Button(self.ax_bwd,'<<',color=axcolor,hovercolor='0.975')
-        
-        def update(val):# link this to the update in each resobj
+        self.slider.valtext.set_text(convtime.convtime(t_current).isoformat())
+       
+        def update(val):#link this to the update in each resobj
             t = np.floor(self.slider.val)            
             self.time_current=t
             for aa in range(0,len(self.res_fils)):
                 self.res_fils[aa].refresh_plot(self.time_current)
+            self.slider.valtext.set_text(convtime.convtime(t).isoformat())
             
         self.slider.on_changed(update)
         
@@ -83,13 +87,13 @@ class fvobj:
                 self.slider.set_val(t-t_step)
             elif event.key == 'up':
                 t=self.slider.val
-                self.slider.set_val(t+t_step)
+                self.slider.set_val(t+t_step*5)
             elif event.key == 'down':
                 t=self.slider.val
-                self.slider.set_val(t-t_step)
+                self.slider.set_val(t-t_step*5)
             
-
-        self.cid = self.fig.canvas.mpl_connect('key_release_event', on_key)
+        if hasattr(self,'cid')==False:
+            self.cid = self.fig.canvas.mpl_connect('key_release_event', on_key)
         
         
     def add_res(self,fvplot):
@@ -122,6 +126,8 @@ class fvobj:
     def remove_res_obj(self,res):
          pass
         
+    def close_res(self):
+        plt.close(self.fig)
 #t=fvobj(nr=3,nc=2)
         
         
