@@ -154,7 +154,25 @@ class fvsheet(sheet):
         stat=stat==0 
         self.var[stat] = np.nan
         self.stat=stat
+<<<<<<< HEAD
 
+=======
+        
+    def get_variable(self):
+        # Extend this function to handle expressions if required
+        var = self.fils.get_timestep(self.variable,self.timestep)
+        return var
+    
+    def get_whole_variable(self,variable):
+        var=self.fils.get_var(variable)
+        return var
+        
+    def get_vect_variable(self,vector_xvar,vector_yvar):
+        # Extend this function to handle expressions if required
+        x_var = self.fils.get_timestep(vector_xvar,self.timestep)
+        y_var = self.fils.get_timestep(vector_yvar,self.timestep)
+        return (x_var, y_var)
+>>>>>>> refs/remotes/origin/Dev_SE
         
     def is3D(self):
         # Checks once if output will be 3D or not, then stores this

@@ -2,7 +2,7 @@
 """
 Created on Thu Aug 20 15:35:00 2015
 
-@author: toby.devlin
+@author: toby.devlin && steven.ettema
 """
 import dataset_types
 import numpy as np
@@ -10,8 +10,7 @@ import matplotlib
 from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
 import matplotlib.pyplot as plt
-import matplotlib.path as mplPath
-from matplotlib.widgets import Slider, Button
+import inpoly_py as ip
 
 
 class mypatches:
@@ -27,7 +26,6 @@ class mypatches:
         patches.set_array(np.zeros(len(faces)))
         ax.add_collection(patches)
         self.patches=patches
-#        plt.colorbar(self.patches)
 
     def delete(self):
         pass
@@ -45,29 +43,21 @@ class mypatches:
         pass
 
 class myarrows:
-    def __init__(self,x_var,y_var,px,py,xy,face):
-        #Setup an empty matrix for the data
-        datv= np.empty((len(px),1))
-        datv[:] = np.NAN
-        for aa in range(len(face)):
-            #builds it polygon by polygon
-                poly = np.vstack((xy[face[aa,0]],xy[face[aa,1]],xy[face[aa,2]],xy[face[aa,3]]))
-                bbPath = mplPath.Path(poly)
-                #checks if the data is contained within the polygon built in that timestep
-                tt=bbPath.contains_points(np.transpose(np.vstack((px,py))))
-                datv[tt]=aa
-
-        datx=np.empty((len(datv),1))
+    def __init__(self,x_var,y_var,px,py,xy,face,ax):
+        plt.sca(ax)        
+        datv= np.empty((len(px)))
+        dat_x=xy[face,0]
+        dat_y=xy[face,1]
+        datv=ip.inpoly_py(px,py,dat_x,dat_y)
+        datx=np.empty((len(datv)))
         datx[:] = np.NAN
-        daty=np.empty((len(datv),1))
+        daty=np.empty((len(datv)))
         daty[:] = np.NAN
         ind=~np.isnan(datv)
         tmp=datv[ind]
         datx[ind]=x_var[tmp.astype(int)]
         daty[ind]=y_var[tmp.astype(int)]
-        self.vectors = plt.quiver(px,py,datx,daty,units='dots',scale=0.05,minlength=0.01,pivot = 'tail',width=1.5)        
-        
-
+        self.vectors = plt.quiver(px,py,datx,daty,units='dots',scale=0.05,minlength=0.01,pivot = 'tail',width=1.5,axes=ax)
 
 class render2D:
     
@@ -97,7 +87,7 @@ class render2D:
         self.patches=mypatches(vertices,faces,self.ax)
         self.ax.set_xlim((np.min(vertices[0,:])),(np.max(vertices[0,:])))
         self.ax.set_ylim((np.min(vertices[1,:])),(np.max(vertices[1,:])))
-        self.c_bar=plt.colorbar(self.patches.patches,ticks=[-1, -0.5, 0, 0.5, 1])
+        self.c_bar=plt.colorbar(self.patches.patches,ticks=[-1, -0.5, 0, 0.5, 1],ax=self.ax)
                 
         self.c_bar.set_clim(-1,1)
         self.c_bar.draw_all()
@@ -120,10 +110,10 @@ class render2D:
         yp1 = self.ax.get_ylim()
         xp1 = self.ax.get_xlim()
         #gets the figure size in pixles
-        bbox=self.ax.get_window_extent().transformed(self.fig.dpi_scale_trans.inverted()) 
+        bbox=self.ax.get_window_extent().transformed(self.fvobj.fig.dpi_scale_trans.inverted()) 
         width, height = bbox.width, bbox.height
-        width *=self.fig.dpi
-        height *=self.fig.dpi
+        width *=self.fvobj.fig.dpi
+        height *=self.fvobj.fig.dpi
         #determine the number of vectors in each dimention
         nx=np.round(width/self.vscale)
         ny=np.round(height/self.vscale)
@@ -137,10 +127,10 @@ class render2D:
         #cell information
         vertices = self.resobj.get_vertices()
         self.face = self.resobj.get_faces()-1
-        xy = np.vstack((vertices[0,:],vertices[1,:]))
+        xy = vertices
         self.xy = np.transpose(xy);
         x_var, y_var=self.resobj.get_vect_variable(self.vector_xvar,self.vector_yvar)
-        self.vectors=myarrows(x_var,y_var,px,py,self.xy,self.face)
+        self.vectors=myarrows(x_var,y_var,px,py,self.xy,self.face,self.ax)
         plt.show()
         
         
@@ -151,41 +141,31 @@ class render2D:
         pass
 
     def update_arrows(self):
+        #gets the figure size in pixles
         yp1 = self.ax.get_ylim()
         xp1 = self.ax.get_xlim()
-        #gets the figure size in pixles
-        bbox=self.ax.get_window_extent().transformed(self.fig.dpi_scale_trans.inverted()) 
+        bbox=self.ax.get_window_extent().transformed(self.fvobj.fig.dpi_scale_trans.inverted()) 
         width, height = bbox.width, bbox.height
-        width *=self.fig.dpi
-        height *=self.fig.dpi
+        width *=self.fvobj.fig.dpi
+        height *=self.fvobj.fig.dpi
         #determine the number of vectors in each dimention
         nx=np.round(width/self.vscale)
         ny=np.round(height/self.vscale)
         #detemine there location
         px = np.linspace(xp1[0],xp1[1],nx)
         py = np.linspace(yp1[0],yp1[1],ny)
-        #points to interpolate too
         pts=np.meshgrid(px,py)
         px=np.reshape(pts[0],np.size(pts[0]),1)
         py=np.reshape(pts[1],np.size(pts[1]),1)
-        #Setup an empty matrix for the data
-        datv= np.empty((len(px),1))
-        datv[:] = np.NAN
-        
-        for aa in range(len(self.face)):
-            #builds it polygon by polygon
-            poly = np.vstack((self.xy[self.face[aa,0]],self.xy[self.face[aa,1]],self.xy[self.face[aa,2]],self.xy[self.face[aa,3]]))
-            bbPath = mplPath.Path(poly)
-            #checks if the data is contained within the polygon built in that timestep
-            t=bbPath.contains_points(np.transpose(np.vstack((px,py))))
-            datv[t]=aa
-    
-        datx=np.empty((len(datv),1))
-        datx[:] = np.NAN
-        daty=np.empty((len(datv),1))
-        daty[:] = np.NAN
-        ind=~np.isnan(datv)
-        tmp=datv[ind]
+        dat_x=self.xy[self.face,0]
+        dat_y=self.xy[self.face,1]
+        self.datv=ip.inpoly_py(px,py,dat_x,dat_y)
+        datx=np.empty(len(self.datv))
+        datx[:] = 0
+        daty=np.empty(len(self.datv))
+        daty[:] = 0
+        ind=self.datv!=-1
+        tmp=self.datv[ind]
         x_var, y_var=self.resobj.get_vect_variable(self.vector_xvar,self.vector_yvar)
         datx[ind]=x_var[tmp.astype(int)]
         daty[ind]=y_var[tmp.astype(int)]
@@ -201,7 +181,10 @@ class render2D:
     #-------Refresh---------
     def refresh_plot(self,*args): #the second argument assigns the time step number if you wish
         if len(args)>0:
-            self.resobj.timestep=args[0]
+            if isinstance(args[0], int): #checks if a float or integer is given, if float it assumes its a time not timestep
+                self.resobj.timestep=args[0]
+            else:
+                self.resobj.timestep=np.argmin(abs(self.resobj.time_series-args[0]))
             self.resobj.process_data()
         if self.contours:
             render2D.update_patches(self)
@@ -210,54 +193,16 @@ class render2D:
         plt.draw()
         
         
-class slider():
-
-    def __init__(self,res):
-        
-        self.res=res
-    
-
-
-    def slider_bar(self,res):
-        #setupthe slider
-        axcolor = 'lightgoldenrodyellow'
-        self.axtime = plt.axes([0.1, 0.05, 0.8, 0.03], axisbg=axcolor)
-        self.stime = Slider(self.axtime, 'Timestep', 0, len(res.resobj.fils.fid.dimensions['Time']), valinit=0)
-        
-        def update(val,res):
-            t = self.stime.val
-            res.refresh_plot(t)
-        
-        self.stime.on_changed(update(self,res))
-        
-
-    
-
-    def foward_button(self,res):
-        self.fwdax = plt.axes([0.1, 0.1, 0.1, 0.04])
-        self.fwdb = Button(self.fwdax, 'forward', color='lightgoldenrodyellow', hovercolor='0.975')
-        self.fwdb.on_clicked(slider.update(res.resobj.timestep-1,res))
-#        
-#        self.bwdax = plt.axes([0.8, 0.1, 0.1, 0.04])
-#        self.bwdb = Button(self.bwdax, 'backward', color=self.axcolor, hovercolor='0.975')
-#        def bwd(stime):
-#            t = stime.val
-#            t=t-1
-#            update(t)
-#        
-#            
-#        self.bwdb.on_clicked(bwd(self.stime))
-
-#__________________________________________________________
+####__________________________________________________________
 class plot_sheet(render2D):
 
-    def __init__(self,dfile,variable,ref='sigma',lower=0,upper=1,fig='current',ax='current',contours=True,vectors=True,vector_var='V'):
+    def __init__(self,fvobj,ax,dfile,variable,ref='sigma',lower=0,upper=1,contours=True,vectors=True,vector_var='V'):
         # take input requests, determine what type of file, then call
         # constructors for the contours and/or vectors
         self.resobj = dataset_types.sheet.factory(dfile,variable,ref,lower,upper)
         self.resobj.timestep = 0
-        self.ax = ax
-        self.fig = fig
+        self.fvobj=fvobj
+        self.ax=ax
         self.contours = contours
         self.vectors = vectors
         self.vscale = 20
@@ -270,14 +215,22 @@ class plot_sheet(render2D):
         	self.build_arrows()
 
         self.refresh_plot(0)
-        
+        self.get_t_limits() # i do this tooextract the res timeonce
+        self.add_res_obj()
+
 
         #self.patches.set_face_value(self.resobj.var)        
         #self.patches.patches.colorbar.set_clim(-1,1)  
+<<<<<<< HEAD
         #res=self
 
         #self.slider_bar=slider.slider_bar(res)
         
+=======
+    def add_res_obj(self):
+            self.fvobj.add_res(self)
+
+>>>>>>> refs/remotes/origin/Dev_SE
     def setref(self,val):
         self.resobj.setref(val)
         # then update?
@@ -291,10 +244,15 @@ class plot_sheet(render2D):
     
     def getrange(self):
         pass
-
-
-
-
+    
+    def get_t_limits(self):
+        t=self.resobj.get_whole_variable('ResTime')
+        self.resobj.time_series=t;
+        time={'time_start':t[0],
+        'time_end':t[-1],
+        'time_step':(t[-1]-t[0])/len(t)}
+        
+        return time
 
 
 
