@@ -6,16 +6,12 @@ Created on Fri Jan 08 09:42:03 2016
 """
 import datetime as dt
 
-def convtime(date_num):
+
+def convtime(fvtime):
 
     #FV time is in HOURS since 1990
-    date_num=date_num*60*60 #convert to seconds
+    date_num = fvtime * 60 * 60  # convert to seconds
     #Work out the conversion to Ordinal times
-    tmp1=dt.datetime(1990,1,1,0,0,0)
-    tmp2=dt.datetime(1970,1,1,0,0,0)
-    tmp3=tmp1-tmp2
-    tmp3=tmp3.total_seconds()
-    date_num=dt.datetime.utcfromtimestamp(tmp3+date_num)
-
+    tmp1 = dt.datetime(1990, 1, 1, 0, 0, 0) - dt.datetime(1970, 1, 1, 0, 0, 0)
+    date_num = dt.datetime.utcfromtimestamp(tmp1.total_seconds() + date_num)
     return  date_num
-    
