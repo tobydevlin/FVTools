@@ -10,13 +10,13 @@ defines which voly a vector of points is in
 """
 import ctypes as ct
 import numpy as np
-#import matplotlib.path as mplPath
-#import time as time
-#from netCDF4 import Dataset
+import matplotlib.path as mplPath
+import time as time
+from netCDF4 import Dataset
 
 
 def inpoly_py(px,py,dat_x,dat_y):
-    mydll=ct.cdll.LoadLibrary('C:\\Users\\steven.ettema\\Documents\\Visual Studio 2015\\Projects\\in_poly\\x64\\Release\\in_poly.dll')
+    mydll=ct.cdll.LoadLibrary('in_poly.dll')
     mycfun=mydll.inpoly
     px=px.astype(ct.c_double)
     py=py.astype(ct.c_double)
@@ -48,26 +48,26 @@ def inpoly_py(px,py,dat_x,dat_y):
     return out
 
 
-#def inpoly_old(px,py,dat_x,dat_y):#face,xy):
-#    datv=np.empty(len(px))    
-#    datv[:]=np.nan
-#    pts=np.transpose(np.vstack([px,py]))
-#    for aa in range(len(dat_x)):
-#        #poly = np.array((xy[face[aa,0]],xy[face[aa,1]],xy[face[aa,2]],xy[face[aa,3]]))
-#        poly = np.array([dat_x[aa,:],dat_y[aa,:]])
-#        bbPath = mplPath.Path(poly.transpose())
-#        t=bbPath.contains_points(pts)
-#        datv[t]=aa
-#    return datv
-#    
-#    
-###############################TESTING#####################################
+def inpoly_old(px,py,dat_x,dat_y):#face,xy):
+    datv=np.empty(len(px))    
+    datv[:]=np.nan
+    pts=np.transpose(np.vstack([px,py]))
+    for aa in range(len(dat_x)):
+        #poly = np.array((xy[face[aa,0]],xy[face[aa,1]],xy[face[aa,2]],xy[face[aa,3]]))
+        poly = np.array([dat_x[aa,:],dat_y[aa,:]])
+        bbPath = mplPath.Path(poly.transpose())
+        t=bbPath.contains_points(pts)
+        datv[t]=aa
+    return datv
+    
+    
+##############################TESTING#####################################
 ##px=np.array([-0.5,2.5])
 ##py=np.array([0.5,0.5])
 ##dat_x=np.array([[0,0,1,1],[1,1,2,2],[2,2,3,2]])
 ##dat_y=np.array([[0,1,1,0],[0,1,1,0],[0,1,1,0]])
 ###
-#filename='R:\B21159\Cali\BMTWBM_COMP_DEC12_JAN13_waves.nc'
+#filename='\\\\blaydos\scratch3\B20020\TUFLOW-FV\output\GLAD_VEL_ULT_3D_000.nc'
 #fid=Dataset(filename,'r')
 #nd_x=fid.variables['node_X'][:]
 #nd_y=fid.variables['node_Y'][:]
@@ -118,11 +118,11 @@ def inpoly_py(px,py,dat_x,dat_y):
 #
 #
 #for aa in range (1):
-#    px=np.linspace(np.min(dat_x[:]),np.mean(dat_x[:]),num=20)
-#    py=np.linspace(np.mean(dat_y[:]),np.max(dat_y[:]),num=20)
-#    res_new=inpoly_py(px,py,dat_x,dat_y)
-#    px=np.linspace(np.mean([np.min(dat_x[:]),np.mean(dat_x[:])]),np.mean(dat_x[:]),num=20)
-#    py=np.linspace(np.mean(dat_y[:]),np.max(dat_y[:]),num=20)
+#    px=np.linspace(np.min(dat_x[:]),np.mean(dat_x[:]),num=1000)
+#    py=np.linspace(np.mean(dat_y[:]),np.mean(dat_y[:]),num=50)
+#    #res_new=inpoly_py(px,py,dat_x,dat_y)
+#    #px=np.linspace(np.mean([np.min(dat_x[:]),np.mean(dat_x[:])]),np.mean(dat_x[:]),num=20)
+#    #py=np.linspace(np.mean(dat_y[:]),np.max(dat_y[:]),num=20)
 #    tic=time.clock()
 #    res_new1=inpoly_py(px,py,dat_x,dat_y)
 #    
@@ -133,10 +133,10 @@ def inpoly_py(px,py,dat_x,dat_y):
 #tic=time.clock()
 #
 #
-#for aa in range (1):
-#    res_old=inpoly_old(px,py,dat_x,dat_y)
-#toc=time.clock()
-#t_old=toc-tic
-#print t_old
+##for aa in range (1):
+##    res_old=inpoly_old(px,py,dat_x,dat_y)
+##toc=time.clock()
+##t_old=toc-tic
+##print t_old
 #
 ##
