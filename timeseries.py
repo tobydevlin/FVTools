@@ -7,8 +7,8 @@ Created on Tue Jun 21 16:23:06 2016
 
 import numpy as np
 from netCDF4 import Dataset
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
+#import matplotlib.pyplot as plt
+#import matplotlib.dates as mdates
 
 
 
@@ -317,9 +317,11 @@ def create_profile_files(in_fil,out_fil,c_ids):
         
     
    
-def plot_timeseries(profile_fil,var,cell_name,ref='sigma',lower=0,upper=1):
+def dave_profiles(profile_fil,var,cell_name,ref='sigma',lower=0,upper=1):
     '''
     Should probabily rename to dave profiles or something when that works and is implemented
+    
+    depth averaging setting should be checked
     '''
     nc=Dataset(profile_fil,'r')
     x=nc.groups[cell_name]['ResTime'][:]
@@ -402,27 +404,27 @@ def convtime(date_num):
 #in_fil='\\\\blaydos\\scratch2\\B21709\\output\\ARG_2D_020.nc'
 #out_fil='\\\\blaydos\\scratch2\\B21709\\output\\ARG_2D_020_PROFILES.nc'
 
-in_fil='\\\\blaydos\\scratch2\\B22129\\output\\Brunei_001_warmup.nc'
-out_fil='\\\\blaydos\\scratch2\\B22129\\output\\Brunei_001_warmup_SE_test_profiles.nc'
-
-c_ids = get_cell_ids(in_fil,[115.07218,115.07018],[5.157194,5.158294])
-c_ids =np.array(c_ids)
-
-#c_ids=np.array([1,4,14768])
-
-
-create_profile_files(in_fil,out_fil,c_ids)
-
-f=plt.figure()
-ax=plt.subplot(1,1,1)
-x,V_y=plot_timeseries(out_fil,[('V_y')],'CELL_'+str(c_ids[0]),ref='sigma',lower=0,upper=1)
-x,V_x=plot_timeseries(out_fil,[('V_x')],'CELL_'+str(c_ids[0]),ref='sigma',lower=0,upper=1)
-x=convtime(x)
-ax.plot(x,np.hypot(V_x,V_y))
-
-#ax.set_ylim(0,1)
-#f.autofmt_xdate()
-ax.format_xdata = mdates.DateFormatter('%y-%m-%d %h:%m:%s')
+#in_fil='\\\\blaydos\\scratch2\\B22129\\output\\Brunei_001_warmup.nc'
+#out_fil='\\\\blaydos\\scratch2\\B22129\\output\\Brunei_001_warmup_SE_test_profiles.nc'
+#
+#c_ids = get_cell_ids(in_fil,[115.07218,115.07018],[5.157194,5.158294])
+#c_ids =np.array(c_ids)
+#
+##c_ids=np.array([1,4,14768])
+#
+#
+#create_profile_files(in_fil,out_fil,c_ids)
+#
+#f=plt.figure()
+#ax=plt.subplot(1,1,1)
+#x,V_y=dave_profiles(out_fil,[('V_y')],'CELL_'+str(c_ids[0]),ref='sigma',lower=0,upper=1)
+#x,V_x=dave_profiles(out_fil,[('V_x')],'CELL_'+str(c_ids[0]),ref='sigma',lower=0,upper=1)
+#x=convtime(x)
+#ax.plot(x,np.hypot(V_x,V_y))
+#
+##ax.set_ylim(0,1)
+##f.autofmt_xdate()
+#ax.format_xdata = mdates.DateFormatter('%y-%m-%d %h:%m:%s')
 
 
   
