@@ -12,7 +12,7 @@ import fvobj as ctrl
 
 fv_obj=ctrl.fvobj(nr=1,nc=1)
 
-fvobjz0=pt.plot_sheet(fv_obj,fv_obj.ax[0],'\\\\blaydos\scratch2\B21657\output_coastal\PUM_BREAK2_SDE_test.nc','H',ref='sigma',lower=0,upper=1,contours=True,vectors=False,vector_var='V')
+fvobjz0=pt.plot_sheet(fv_obj,fv_obj.ax[0],'\\\\blaydos\scratch2\B22494\TUFLOW-FV\output\MORT_CALI_2D_000.nc','H',ref='sigma',lower=0,upper=1,contours=True,vectors=False,vector_var='V')
 #fvobjz1=pt.plot_sheet(fv_obj,fv_obj.ax[1],'\\\\blaydos\scratch3\B20020\TUFLOW-FV\output\GLAD_VEL_ULT_3D_000.nc','V_x',ref='sigma',lower=0,upper=1,contours=True,vectors=True,vector_var='V')
 
 

@@ -221,16 +221,16 @@ class plot_sheet(render2D):
 
         #self.patches.set_face_value(self.resobj.var)        
         #self.patches.patches.colorbar.set_clim(-1,1)  
-<<<<<<< HEAD
+#<<<<<<< HEAD
     def add_res_obj(self):
             self.fvobj.add_res(self)
 
-=======
+#=======
         #res=self
 
         #self.slider_bar=slider.slider_bar(res)
         
->>>>>>> refs/remotes/origin/TD
+#>>>>>>> refs/remotes/origin/TD
     def setref(self,val):
         self.resobj.setref(val)
         # then update?

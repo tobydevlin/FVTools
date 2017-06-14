@@ -65,17 +65,17 @@ def csv_read(fil,fmt,nheaderlines=1,fmt_time="%d/%m/%Y %H:%M"):
             cnt2=0
             for word in line:
                 if FMT[cnt2]==1:
-                    data[id2,cnt-nheaderlines]=float(word)
+                    data[id2,cnt-nheaderlines+1]=float(word)
                     id2=id2+1
                     if id2==ncd:
                        id2=0
                 elif FMT[cnt2]==2:
-                    date[id1,cnt-nheaderlines]=datetime.datetime.strptime(word,fmt_time)
+                    date[id1,cnt-nheaderlines+1]=datetime.datetime.strptime(word,fmt_time)
                     id1=id1+1
                     if id1==nct:
                         id1=0
                 else:
-                    texts[id3,cnt-nheaderlines]=word
+                    texts[id3,cnt-nheaderlines+1]=word
                     id3=id3+1
                     if id3==ncstr:
                        id3=0 
@@ -94,10 +94,10 @@ def file_len(fname):
 
 ###################TESTING###########################
 #date,data,texts=csv_read(fil,nct=1,ncd=1,ncstr=1)
-import time as time
-tic=time.time()
+#import time as time
+#tic=time.time()
 #date,data,texts,headers=csv_read(fil,nct=1,ncd=7,ncstr=2,nheaderlines=1,fmt_time="%d/%m/%Y %H:%M:%S")
-date,data,texts,headers=csv_read(fil,fmt="dfffffff",nheaderlines=1,fmt_time="%d/%m/%Y %H:%M:%S")
-toc=time.time()
-dif=toc-tic
-print dif
+#date,data,texts,headers=csv_read(fil,fmt="dfffffff",nheaderlines=1,fmt_time="%d/%m/%Y %H:%M:%S")
+#toc=time.time()
+#dif=toc-tic
+#print dif

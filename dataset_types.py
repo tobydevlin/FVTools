@@ -32,13 +32,13 @@ class dataset:
         import re
         expr = self.var
         subvars = [a.upper() for a in re.split('[\W0-9]+',expr)]
-		vars = nci.variables
-		# find which variables have time dimension
-		for aa in range(len(subvars)):
-			if subvars[aa] not in vars:
-				print 'Error'
-			else:
-				expr=re.sub(subvars[aa],'nci.variables["'+subvars[aa]+'"][#][:]',expr)
+        vars = nci.variables
+        # find which variables have time dimension
+        for aa in range(len(subvars)):
+		if subvars[aa] not in vars:
+                  print 'Error'
+		else:
+                  expr=re.sub(subvars[aa],'nci.variables["'+subvars[aa]+'"][#][:]',expr)
         pass
         
     	#eval(('nci.variables["'+var1+'"][1][:]+nci.variables["'+var2+'"][1][:]'))
@@ -154,7 +154,7 @@ class fvsheet(sheet):
         stat=stat==0 
         self.var[stat] = np.nan
         self.stat=stat
-<<<<<<< HEAD
+#<<<<<<< HEAD
         
     def get_variable(self):
         # Extend this function to handle expressions if required
@@ -170,9 +170,9 @@ class fvsheet(sheet):
         x_var = self.fils.get_timestep(vector_xvar,self.timestep)
         y_var = self.fils.get_timestep(vector_yvar,self.timestep)
         return (x_var, y_var)
-=======
+#=======
 
->>>>>>> refs/remotes/origin/TD
+#>>>>>>> refs/remotes/origin/TD
         
     def is3D(self):
         # Checks once if output will be 3D or not, then stores this

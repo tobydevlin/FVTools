@@ -11,7 +11,7 @@ Created on Tue Jul 12 12:11:52 2016
 import timeseries as ts
 import fv_timeseries_plots as fvp
 import numpy as np
-
+import matplotlib.dates as mdates
 
 
 ### how to create a profiles file
@@ -45,6 +45,11 @@ fvp.report_plot(ax[1],x,V_y,tag='Data')
 fvp.report_plot(ax[2],x,V_x,tag='Data1')
 fvp.report_plot(ax[2],x,V_x,tag='Data')
 
+for i in range(3):
+    ax[i].grid('on')
+    ax[i].format_xdata=mdates.DateFormatter('%YY/%mm/%dd %hh:%mm:%ss')
 
-
+# good to call after a zoom to fit the dates    
+#f.autofmt_xdate()    
+    
 

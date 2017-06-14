@@ -71,7 +71,11 @@ def report_plot(axis,x,y,tag = 'Model'):
     alphas = {'Model':1,
             'Data':0.75,
             'Data1':0.75}
+    markers = {'Model':',',
+            'Data':'.',
+            'Data1':'.'}            
             
-    axis.plot(x,y,color=clrs[tag],linestyle=lines[tag],marker='.',alpha=alphas[tag])
+    axis.plot(x,y,color=clrs[tag],linestyle=lines[tag],marker=markers[tag],alpha=alphas[tag])
+
     
     
