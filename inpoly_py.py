@@ -10,7 +10,6 @@ defines which voly a vector of points is in
 """
 import ctypes as ct
 import numpy as np
-<<<<<<< HEAD
 
 
 def inpoly_py(px, py, dat_x, dat_y):
@@ -43,7 +42,7 @@ def inpoly_py(px, py, dat_x, dat_y):
                            ct.c_int]
 
     return lib.inpoly(px_p, py_p, x_p, y_p, n_poly, polyCorners, n_points)
-=======
+
 import matplotlib.path as mplPath
 import time as time
 from netCDF4 import Dataset
@@ -174,4 +173,3 @@ def inpoly_old(px,py,dat_x,dat_y):#face,xy):
 ##print t_old
 #
 ##
->>>>>>> refs/remotes/origin/Dev_SE

@@ -11,8 +11,8 @@ import fvobj as ctrl
 
 
 fv_obj=ctrl.fvobj(nr=1,nc=1)
-
-fvobjz0=pt.plot_sheet(fv_obj,fv_obj.ax[0],'\\\\blaydos\scratch2\B22494\TUFLOW-FV\output\MORT_CALI_2D_000.nc','H',ref='sigma',lower=0,upper=1,contours=True,vectors=False,vector_var='V')
+#"\\blaydos\scratch2\testing\Benchmark_Small.nc"
+fvobjz0=pt.plot_sheet(fv_obj,fv_obj.ax[0],r'C:\Users\toby.devlin\Desktop\Benchmark_Small.nc','V_x',ref='sigma',lower=0,upper=1,contours=True,vectors=False,vector_var='V')
 #fvobjz1=pt.plot_sheet(fv_obj,fv_obj.ax[1],'\\\\blaydos\scratch3\B20020\TUFLOW-FV\output\GLAD_VEL_ULT_3D_000.nc','V_x',ref='sigma',lower=0,upper=1,contours=True,vectors=True,vector_var='V')
 
 
@@ -24,7 +24,7 @@ fv_obj.ax[0].get_yaxis().set_visible(False)
 fv_obj.ax[0].axis('equal')
 #fv_obj.ax[1].axis('equal')
 
-print 'french fries'
+
 
 #import file_types as ft
 #

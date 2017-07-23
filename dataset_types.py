@@ -4,10 +4,9 @@ Created on Tue Aug 18 13:38:50 2015
 
 @author: toby.devlin
 """
-import dave_c
 import file_types
 import numpy as np
-
+import Util_Engine
 
 #__________________________________________________________
 def isfvnc(filetype):
@@ -32,26 +31,14 @@ class dataset:
         # might be able to be defined in this superclass
         import re
         expr = self.var
-<<<<<<< HEAD
         subvars = [a.upper() for a in re.split('[\W0-9]+', expr)]
         vars = nci.variables
         # find which variables have time dimension
         for aa in range(len(subvars)):
             if subvars[aa] not in vars:
-                print 'Error'
+                print('Error')
             else:
                 expr = re.sub(subvars[aa], 'nci.variables["' + subvars[aa] + '"][#][:]', expr)
-=======
-        subvars = [a.upper() for a in re.split('[\W0-9]+',expr)]
-        vars = nci.variables
-        # find which variables have time dimension
-        for aa in range(len(subvars)):
-		if subvars[aa] not in vars:
-                  print 'Error'
-		else:
-                  expr=re.sub(subvars[aa],'nci.variables["'+subvars[aa]+'"][#][:]',expr)
->>>>>>> refs/remotes/origin/Dev_SE
-        pass
 
         #eval(('nci.variables["'+var1+'"][1][:]+nci.variables["'+var2+'"][1][:]'))
 
@@ -70,6 +57,7 @@ class dataset:
         self.process_data()
 
     def setvar(self, val):
+        # 
         self.variable = val
 
     def get_variable(self):
@@ -83,8 +71,6 @@ class sheet(dataset):
     # sheet class. process data involves depth averaging for 3D data
     # can set depth averaging settings.
 
-    ref = ''
-    range = ''
 
     def factory(dfile, variable, ref, lower, upper):
         filobj = file_types.file_type.open(dfile)
@@ -105,20 +91,8 @@ class sheet(dataset):
     factory = staticmethod(factory)
 
     def setref(self, ref):
-        if ref == 'sigma':
-            self.ref = 1
-        elif ref == 'depth':
-            self.ref = 2
-        elif ref == 'height':
-            self.ref = 3
-        elif ref == 'elevation':
-            self.ref = 4
-        elif ref == 'top':
-            self.ref = 5
-        elif ref == 'bot':
-            self.ref = 6
-        else:
-            print 'ERROR: Invlaid Ref Value'
+        # Get Depth averaging function that is appropriate for ref.
+        self.ref=Util_Engine.get_dave_fun(ref)
 
     def get_vect_variable(self, vector_xvar, vector_yvar):
         # Extend this function to handle expressions if required
@@ -127,6 +101,7 @@ class sheet(dataset):
         return (x_var, y_var)
 
     def setrange(self, lower, upper):
+        # Set upper and lower bound of depth-averaging
         self.lower = lower
         self.upper = upper
 
@@ -139,7 +114,7 @@ class fvsheet(sheet):
     def __init__(self, fil, variable, ref, lower, upper):
         self.variable = variable
 
-        if isinstance(fil, basestring):
+        if isinstance(fil, str):
             self.fils = file_types.nc_fil(fil)
         elif isinstance(fil, file_types.file_type):
             self.fils = fil
@@ -156,19 +131,15 @@ class fvsheet(sheet):
             zl = self.fils.get_timestep('layerface_Z', self.timestep)
             nl = self.fils.get_var('NL')
             idx3 = self.fils.get_var('idx3')
-            self.var = dave_c.depth_average(var, zl, nl, idx3, self.ref, self.lower, self.upper)
+            nc2=idx3.size
+            self.var = np.zeros(nc2,dtype=np.float32)
+            err = self.ref(var, zl, nl, idx3, self.lower, self.upper, self.var, idx3.size)
         else:
             self.var = var
         stat = stat == 0
         self.var[stat] = np.nan
-<<<<<<< HEAD
         self.stat = stat
-
-=======
-        self.stat=stat
-#<<<<<<< HEAD
         
->>>>>>> refs/remotes/origin/Dev_SE
     def get_variable(self):
         # Extend this function to handle expressions if required
         var = self.fils.get_timestep(self.variable, self.timestep)
@@ -183,14 +154,7 @@ class fvsheet(sheet):
         x_var = self.fils.get_timestep(vector_xvar, self.timestep)
         y_var = self.fils.get_timestep(vector_yvar, self.timestep)
         return (x_var, y_var)
-<<<<<<< HEAD
 
-=======
-#=======
-
-#>>>>>>> refs/remotes/origin/TD
-        
->>>>>>> refs/remotes/origin/Dev_SE
     def is3D(self):
         # Checks once if output will be 3D or not, then stores this
         var = self.get_variable()

@@ -14,13 +14,69 @@ returns a handel to the figure and axis
 
 @author: Steven.Ettema
 """
+
+import matplotlib
 import matplotlib.pyplot as plt
 from  matplotlib.widgets import Slider, Button
+from matplotlib.patches import Polygon
+from matplotlib.collections import PatchCollection
 from matplotlib import dates
 import  numpy as np
 import convtime
 
+class mypatches:
+    def __init__(self, vertices, faces, ax):
+        patches = []
+        for aa in range(0, len(faces)):
+            ii = faces[aa, :]
+            xy = np.vstack((vertices[0, ii - 1], vertices[1, ii - 1]))
+            polygon = Polygon(np.transpose(xy), True)
+            patches.append(polygon)
+
+        patches = PatchCollection(patches, cmap=matplotlib.cm.jet, edgecolor='none')
+        patches.set_array(np.zeros(len(faces)))
+        ax.add_collection(patches)
+        self.patches = patches
+
+    def delete(self):
+        pass
+
+    def hide(self):
+        pass
+
+    def update(self, vertices, faces, ax):
+        pass
+
+    def set_face_value(self, cdat):
+        # Update face centered Data
+        self.patches.set_array(cdat)
+
+    def set_vertex_value(self, cdat):
+        pass
+
+
+class myarrows:
+    def __init__(self, x_var, y_var, px, py, xy, face, ax):
+        plt.sca(ax)
+        datv = np.empty((len(px)))
+        dat_x = xy[face, 0]
+        dat_y = xy[face, 1]
+        datv = ip.inpoly_py(px, py, dat_x, dat_y)
+        datx = np.empty((len(datv)))
+        datx[:] = np.NAN
+        daty = np.empty((len(datv)))
+        daty[:] = np.NAN
+        ind = ~np.isnan(datv)
+        tmp = datv[ind]
+        datx[ind] = x_var[tmp.astype(int)]
+        daty[ind] = y_var[tmp.astype(int)]
+        self.vectors = plt.quiver(px, py, datx, daty,
+        units='dots', scale=0.05, minlength=0.01, pivot='tail', width=1.5, axes=ax)
+
+
 class fvobj:
+# This 'fvobj' is the figure object that holds a slider and can have resobjs added to it.
+# TODO: add capacity to have multiple axes somehow
 
     def __init__(self,**kwargs):
         #initialises sheets and axes
@@ -41,13 +97,12 @@ class fvobj:
                 self.ax.append(tmp)
             ## Creating this here along side all other axes
             axcolor='grey'
-            self.ax_slider=plt.axes([0.35, 0.01, 0.3, 0.03], axisbg=axcolor)
-            self.ax_fwd=plt.axes([0.1, 0.01, 0.1, 0.04], axisbg=axcolor)
-            self.ax_bwd=plt.axes([0.00, 0.01, 0.1, 0.04], axisbg=axcolor)
+            self.ax_slider=plt.axes([0.35, 0.01, 0.3, 0.03], facecolor=axcolor)
+            self.ax_fwd=plt.axes([0.1, 0.01, 0.1, 0.04], facecolor=axcolor)
+            self.ax_bwd=plt.axes([0.00, 0.01, 0.1, 0.04], facecolor=axcolor)
             self.slider_obj=self.make_slider_obj()
-            print 'potato'            
 
-    def make_slider_obj(self,t_start=0,t_end=100,t_current=0,t_step=1): #takes resobj from make plots to initialise slider
+    def make_slider_obj(self,t_start=0,t_end=100,t_current=0,t_step=1): # TODO: this needs to be put in a separate object
 
         axcolor='grey'
         self.slider = Slider(self.ax_slider, 'Timestep', t_start, t_end, valinit=t_current, slidermax=None, slidermin=None)
@@ -97,8 +152,10 @@ class fvobj:
         
         
     def add_res(self,fvplot):
+        # Add object to plot
         self.ax_slider.clear()
         self.res_fils.append(fvplot)
+
         if self.res_count==0:
             time=fvplot.get_t_limits()
             self.time_start=time['time_start']
@@ -121,20 +178,18 @@ class fvobj:
                 #time_current=valmin
                 #self.make_sl
         pass        
-        
-        
+              
     def remove_res_obj(self,res):
-         pass
+        # Get rid of results dataset object
+        pass
         
     def close_res(self):
-        plt.close(self.fig)
-#t=fvobj(nr=3,nc=2)
-        
-        
-        
-        
-        
-                
-        
-    
-    
+        # Close and Cleanup
+        plt.close(self.fig)      
+
+
+class sliderobj:
+    # Slider object with start time, end time, small step and large step.
+    # Needs to return the timestep it is at when clicked.
+    # Should also allow extending the times when a new object is added
+    pass

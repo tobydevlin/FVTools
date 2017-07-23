@@ -5,62 +5,13 @@ Created on Thu Aug 20 15:35:00 2015
 @author: toby.devlin && steven.ettema
 """
 
-from . import dataset_types
-import matplotlib
+import dataset_types
+import fvobj as fobj
 import numpy as np
 import matplotlib.pyplot as plt
-from . import inpoly_py as ip
-from matplotlib.patches import Polygon
-from matplotlib.collections import PatchCollection
+import inpoly_py as ip
 
-
-class mypatches:
-    def __init__(self, vertices, faces, ax):
-        patches = []
-        for aa in range(0, len(faces)):
-            ii = faces[aa, :]
-            xy = np.vstack((vertices[0, ii - 1], vertices[1, ii - 1]))
-            polygon = Polygon(np.transpose(xy), True)
-            patches.append(polygon)
-
-        patches = PatchCollection(patches, cmap=matplotlib.cm.jet, edgecolor='none')
-        patches.set_array(np.zeros(len(faces)))
-        ax.add_collection(patches)
-        self.patches = patches
-
-    def delete(self):
-        pass
-
-    def hide(self):
-        pass
-
-    def update(self, vertices, faces, ax):
-        pass
-
-    def set_face_value(self, cdat):
-        pass
-
-    def set_vertex_value(self, cdat):
-        pass
-
-
-class myarrows:
-    def __init__(self, x_var, y_var, px, py, xy, face, ax):
-        plt.sca(ax)
-        datv = np.empty((len(px)))
-        dat_x = xy[face, 0]
-        dat_y = xy[face, 1]
-        datv = ip.inpoly_py(px, py, dat_x, dat_y)
-        datx = np.empty((len(datv)))
-        datx[:] = np.NAN
-        daty = np.empty((len(datv)))
-        daty[:] = np.NAN
-        ind = ~np.isnan(datv)
-        tmp = datv[ind]
-        datx[ind] = x_var[tmp.astype(int)]
-        daty[ind] = y_var[tmp.astype(int)]
-        self.vectors = plt.quiver(px, py, datx, daty,
-        units='dots', scale=0.05, minlength=0.01, pivot='tail', width=1.5, axes=ax)
+plt.ion()
 
 
 class render2D:
@@ -76,34 +27,42 @@ class render2D:
     arrows = []
 
     def settime(self, timestep):
+        # Set the timestep and call update
         self.resobj.settime(timestep)
         self.contours.update_patches()
 
     def setcolormap(self, cdata):
+        # Change the colormap of contours... (should this be elsewhere?)
         self.patches.set_array(cdata)
 
     #---------Patches--------
     def build_patches(self):
+        # Start up and generate patch objects
         vertices = self.resobj.get_vertices()
         faces = self.resobj.get_faces()
-        self.patches = mypatches(vertices, faces, self.ax)
+        self.patches = fobj.mypatches(vertices, faces, self.ax)
+
+        # TODO: Find a better place for this stuff. -- remove MPL from this module
         self.ax.set_xlim((np.min(vertices[0, :])), (np.max(vertices[0, :])))
         self.ax.set_ylim((np.min(vertices[1, :])), (np.max(vertices[1, :])))
         self.c_bar = plt.colorbar(self.patches.patches, ticks=[-1, -0.5, 0, 0.5, 1], ax=self.ax)
-        self.c_bar.set_clim(-1, 1)
+        self.c_bar.set_clim(0, 10)
         self.c_bar.draw_all()
 
     def update_patches(self):
+        # Update patch data to new timestep
         t = np.ma.masked_where(np.isnan(self.resobj.var), self.resobj.var)
-        self.patches.patches.set_array(t)
+        self.patches.set_face_value(t)
 
     def hide_patches(self):
+        # Make Patches invisible and not update
         pass
 
     def destroy_patches(self):
+        # Delete patches and cleanup
         pass
 
-    #---------Vectors--------
+    #---------Vectors--------          # TODO: Tidy this up and put some in myarrows. No MPL in this module
     def build_arrows(self):
         #distance between vectors in pixles
         yp1 = self.ax.get_ylim()
@@ -129,13 +88,15 @@ class render2D:
         xy = vertices
         self.xy = np.transpose(xy)
         x_var, y_var = self.resobj.get_vect_variable(self.vector_xvar, self.vector_yvar)
-        self.vectors = myarrows(x_var, y_var, px, py, self.xy, self.face, self.ax)
+        self.vectors = fobj.myarrows(x_var, y_var, px, py, self.xy, self.face, self.ax)
         plt.show()
 
     def hide_arrows(self):
+        # Make arrows invisible and not update
         pass
 
     def destroy_arrows(self):
+        # Delete arrows
         pass
 
     def update_arrows(self):
@@ -177,7 +138,7 @@ class render2D:
         plt.draw()
 
     #-------Refresh---------
-    def refresh_plot(self, *args):  # the second argument assigns the time step number if you wish
+    def refresh_plot(self, *args):     # The second argument assigns the time step number if you wish
         if len(args) > 0:
             # checks if a float or integer is given, if float it assumes its a time not timestep
             if isinstance(args[0], int):
@@ -219,52 +180,36 @@ class plot_sheet(render2D):
         self.get_t_limits()  # i do this tooextract the res timeonce
         self.add_res_obj()
 
-<<<<<<< HEAD
     def add_res_obj(self):
+        # Should this be in the initialisation
         self.fvobj.add_res(self)
 
     def setref(self, val):
-=======
-
-        #self.patches.set_face_value(self.resobj.var)        
-        #self.patches.patches.colorbar.set_clim(-1,1)  
-#<<<<<<< HEAD
-    def add_res_obj(self):
-            self.fvobj.add_res(self)
-
-#=======
-        #res=self
-
-        #self.slider_bar=slider.slider_bar(res)
-        
-#>>>>>>> refs/remotes/origin/TD
-    def setref(self,val):
->>>>>>> refs/remotes/origin/Dev_SE
+        # Set the reference for depth-averaging
         self.resobj.setref(val)
-        # then update?
 
     def setrange(self, lower, upper):
+        # Set the range for depth-averaging
         self.resobj.setrange(lower, upper)
-        # then update?
-
+        
     def getref(self):
+        # Return the reference for depth-averaging
         pass
 
     def getrange(self):
+        # Return the limits for depth-averaging
         pass
 
     def get_t_limits(self):
+        # Get the start time, end time, and timestep. This will be passed into the slider
         t = self.resobj.get_whole_variable('ResTime')
         self.resobj.time_series = t
-        time = {'time_start': t[0],
-        'time_end': t[-1],
-        'time_step': (t[-1] - t[0]) / len(t)}
-
-        return time
+        time_bnd = {'time_start': t[0], 'time_end': t[-1], 'time_step': (t[-1]-t[0])/len(t)}
+        return time_bnd
 
 
 #__________________________________________________________
-class plot_curtain(render2D):
+class plot_curtain(render2D):           # TODO: write up a curtain plotting methodology
 
     def __init__(self, dfile, variable, pline='', chainage=False):
         pass

@@ -27,6 +27,7 @@ class file_type:
         pass
     
     def get_dim_len(name):
+        # get length of dimension
         pass
     
     # Other Suggested Methods
@@ -40,27 +41,23 @@ class file_type:
     
     def open(dfile):
         
-        try: # netcdf
+        try: # TUFLOWFV netcdf
             ff = Dataset(dfile,'r')
-            # place an error if it cant read the ncfile
             ff.close()
             return nc_fil(dfile)
         except Exception:
+            # place an error if it cant read the ncfile
             pass
-        
         
         try: # xmdf
             # some checks
             pass
-        
         except Exception:
             pass
-        
         
         try: # dat
             # some checks
             pass
-        
         except Exception:
             pass
     open = staticmethod(open)

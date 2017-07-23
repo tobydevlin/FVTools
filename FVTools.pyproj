@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{46a4f5d6-6c61-4fbb-8908-c9d80ef43df7}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>view_sheet.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId>{8b2b83d0-7c9c-43fa-be52-ca111f435ed0}</InterpreterId>
+    <InterpreterVersion>3.5</InterpreterVersion>
+    <IsWindowsApplication>False</IsWindowsApplication>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+    <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="convtime.py" />
+    <Compile Include="csv_tools.py" />
+    <Compile Include="dataset_types.py" />
+    <Compile Include="dave_1.py" />
+    <Compile Include="example_timseries_script.py" />
+    <Compile Include="file_types.py" />
+    <Compile Include="fvobj.py" />
+    <Compile Include="fv_timeseries_plots.py" />
+    <Compile Include="inpoly_py.py" />
+    <Compile Include="Util_Engine.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="plot_types.py" />
+    <Compile Include="setup.py" />
+    <Compile Include="timeseries.py" />
+    <Compile Include="view_sheet.py" />
+    <Compile Include="__init__.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="{8b2b83d0-7c9c-43fa-be52-ca111f435ed0}\2.7" />
+    <InterpreterReference Include="{8b2b83d0-7c9c-43fa-be52-ca111f435ed0}\3.5" />
+  </ItemGroup>
+  <Import Project="$(PtvsTargetsFile)" Condition="Exists($(PtvsTargetsFile))" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="!Exists($(PtvsTargetsFile))" />
+</Project>
